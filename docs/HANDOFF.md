@@ -43,13 +43,13 @@ The three spec files per issue:
 - **`design.md`** — component map with resolved tiers (MCP/experimental/custom), file plan (flagged if >10 files), state/data design, routing, feature flag, eventing, i18n keys
 - **`tasks.md`** — ordered build steps with real file paths, test coverage targets (happy path + every error state), self-review checklist
 
-> **Rule:** Every claim in `requirements.md` and `design.md` must cite a real `file:line` in the target repo. Unverified claims are blocked by `spec-reviewer`.
+> **Rule:** Every claim in `requirements.md` and `design.md` must cite a real `file:line` in the target repo. Unverified claims are blocked by `spec-audit`.
 
 ---
 
-### Step 3 — `/spec-reviewer` (per issue, before building)
+### Step 3 — `/spec-audit` (per issue, before building)
 
-Run `/spec-reviewer` to adversarially review every spec. Never build an unreviewed spec.
+Run `/spec-audit` to adversarially review every spec. Never build an unreviewed spec.
 
 The skill runs a **review → revise → repeat** loop (up to 3 rounds) per issue:
 
@@ -154,7 +154,7 @@ A well-sized issue:
 | Feature + i18n QA pass | 2 issues: feature / i18n |
 | Multiple unrelated bug fixes | One issue per bug |
 
-`spec-reviewer` enforces the >10 file limit as a blocking finding. If you see this, split the issue before continuing.
+`spec-audit` enforces the >10 file limit as a blocking finding. If you see this, split the issue before continuing.
 
 ---
 
@@ -193,8 +193,8 @@ A well-sized issue:
 ```
 /setup                           → onboard a new project
 /spec-author                     → generate specs for selected milestones/issues
-/spec-reviewer                   → review all unapproved specs
-/spec-reviewer 01-my-slug        → review one specific issue
+/spec-audit                   → review all unapproved specs
+/spec-audit 01-my-slug        → review one specific issue
 /spec-builder 01-my-slug         → build one approved issue
 /be-review                       → backend code review (standalone)
 /fe-review                       → frontend code review (standalone)

@@ -32,9 +32,9 @@ Read all three spec files for the issue: `requirements.md`, `design.md`, `tasks.
 
 **Check `approved: true`** in frontmatter of all three. If any is missing:
 ```
-⚠️  This spec has not been approved by /spec-reviewer.
+⚠️  This spec has not been approved by /spec-audit.
     Building from an unapproved spec risks wasted work.
-    Proceed anyway? (yes / run /spec-reviewer first)
+    Proceed anyway? (yes / run /spec-audit first)
 ```
 
 **Confirm branch:** Ask the engineer to confirm they are on a feature branch matching `{initials}/{ticket-id}-{slug}`. Run `git branch --show-current` to show the current branch.

@@ -1,11 +1,11 @@
 ---
-name: spec-reviewer
-description: Adversarial principal-engineer review/revise loop per issue. Verifies every claim against real target-repo code. Blocks issues touching >10 files. Returns approved or unresolvable blocking findings after up to 3 rounds.
+name: spec-audit
+description: Adversarial principal-engineer audit loop per issue. Verifies every claim against real target-repo code. Blocks issues touching >10 files. Returns approved or unresolvable blocking findings after up to 3 rounds.
 argument-hint: "[optional: issue slug or list of slugs, e.g. 01-child-page-route-shell]"
 allowed-tools: Read, Glob, Grep, Bash, Edit, Agent, mcp__designbase-storybook__list-all-documentation, mcp__designbase-storybook__get-documentation, mcp__linear__get_issue
 ---
 
-# /spec-reviewer
+# /spec-audit
 
 Adversarial review of issue specs. Acts as a skeptical principal engineer: reads every spec file, verifies every claim against the real target repo, and blocks anything that would cause a wrong build. Runs a review → revise loop until approved or until the max rounds are exhausted.
 

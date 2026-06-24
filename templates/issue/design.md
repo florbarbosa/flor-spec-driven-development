@@ -20,7 +20,7 @@ approved: false
 
 ## File Plan
 
-> Flag this section if total files > 10 — the issue must be split before spec-reviewer approves.
+> Flag this section if total files > 10 — the issue must be split before spec-audit approves.
 
 | Action | File path | Purpose |
 |--------|-----------|---------|

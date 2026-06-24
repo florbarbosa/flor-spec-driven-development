@@ -49,7 +49,7 @@ approved: false
 
 ## Edge Cases & Error States
 
-> Minimum 3 entries required. `spec-reviewer` blocks specs with fewer.
+> Minimum 3 entries required. `spec-audit` blocks specs with fewer.
 
 | # | Scenario | Expected behavior |
 |---|----------|------------------|

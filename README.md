@@ -39,7 +39,7 @@ Projects are added one by one. Each project gets a directory under `specs/` with
 
 ```
   ┌──────────┐     ┌─────────┐     ┌──────────────┐     ┌───────────────┐
-  │  /setup  │ ──▶ │  Recon  │ ──▶ │ /spec-author  │ ──▶ │/spec-reviewer │
+  │  /setup  │ ──▶ │  Recon  │ ──▶ │ /spec-author  │ ──▶ │/spec-audit │
   │          │     │         │     │               │     │               │
   │ Collect  │     │ Map what│     │ Linear issues │     │ Adversarial   │
   │ all your │     │ exists  │     │ → specs with  │     │ review loop — │
@@ -68,7 +68,7 @@ Every step has a Claude skill. The engineer approves every checkpoint.
 |-------|---------|--------------|
 | `/setup` | Once per project | Interactive wizard — collects Linear project, Figma, recordings, Slack threads, target repo. Writes `project.config.md`. |
 | `/spec-author` | After setup | Fetches milestones from Linear, asks which to generate specs for. Authors `requirements.md` + `design.md` + `tasks.md` per issue. |
-| `/spec-reviewer` | After authoring | Adversarial principal-engineer review/revise loop. Verifies every anchor against real code. Blocks issues touching >10 files until split. |
+| `/spec-audit` | After authoring | Adversarial principal-engineer review/revise loop. Verifies every anchor against real code. Blocks issues touching >10 files until split. |
 | `/spec-builder` | One issue at a time | Builds the approved issue in the target repo. Verifies (tsc/jest/eslint), runs code review, gets engineer sign-off, commits + pushes + opens draft PR. |
 | `/be-review` | Auto or standalone | Backend: Ruby/Rails quality, security, DB safety, Packwerk cross-pack rules. |
 | `/fe-review` | Auto or standalone | Frontend: TypeScript/React quality, Designbase compliance, i18n, UX tracking, a11y. |
@@ -90,7 +90,7 @@ Every step has a Claude skill. The engineer approves every checkpoint.
 /spec-author
 
 # 4. Adversarially review every spec before touching code
-/spec-reviewer
+/spec-audit
 
 # 5. Build one issue at a time — one PR each
 /spec-builder 01-my-issue-slug
@@ -103,10 +103,10 @@ Every step has a Claude skill. The engineer approves every checkpoint.
 | Rule | Enforcement |
 |------|-------------|
 | **1 issue = 1 PR** | Hard rule in `spec-builder` — no exceptions |
-| **> 10 files = split the issue** | Blocking finding in `spec-reviewer` |
+| **> 10 files = split the issue** | Blocking finding in `spec-audit` |
 | **Homebase conventions always apply** | `be-review` + `fe-review` check everything |
-| **Never invent component APIs** | `spec-reviewer` blocks unverified component claims |
-| **Every spec cites `file:line`** | `spec-reviewer` blocks ungrounded claims |
+| **Never invent component APIs** | `spec-audit` blocks unverified component claims |
+| **Every spec cites `file:line`** | `spec-audit` blocks ungrounded claims |
 | **Never push without approval** | `spec-builder` stops and asks at every checkpoint |
 | **Build to spec, not beyond** | Out-of-scope work is reported, never implemented |
 

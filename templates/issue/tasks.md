@@ -35,7 +35,7 @@ approved: false
 
 ## Test Coverage Targets
 
-> Every item must be explicitly covered. `spec-reviewer` checks this list against the edge cases in `requirements.md`.
+> Every item must be explicitly covered. `spec-audit` checks this list against the edge cases in `requirements.md`.
 
 **Happy path**
 - [ ] <Describe the primary success flow — what the user does and what they see>
@@ -82,7 +82,7 @@ approved: false
 - [ ] No tests that pass while swallowing a failure (e.g. asserting a callback was called but not checking what it was called with)
 
 **PR readiness**
-- [ ] Total files changed ≤ 10 (if not, something went wrong — see `spec-reviewer`)
+- [ ] Total files changed ≤ 10 (if not, something went wrong — see `spec-audit`)
 - [ ] Branch name: `{initials}/{ticket-id}-{slug}`
 - [ ] Linear ticket will be linked via `hops linear`
 - [ ] Draft PR body will include spec link + review findings + test plan

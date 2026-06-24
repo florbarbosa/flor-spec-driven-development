@@ -117,7 +117,7 @@ Estimate how many files this issue will touch (create + modify). If the estimate
 
 ```
 ⚠️  SIZE WARNING: This issue appears to touch >10 files.
-    The spec-reviewer will block it until split.
+    The spec-audit will block it until split.
     Suggested split: [describe how to divide the issue]
 ```
 
@@ -169,7 +169,7 @@ After all issues are authored:
   ⚠️  Issues flagged for splitting: N (see above)
   Milestones covered: <names>
 
-  Next step: run /spec-reviewer to adversarially
+  Next step: run /spec-audit to adversarially
   review each spec before building.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```

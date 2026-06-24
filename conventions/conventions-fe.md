@@ -1,6 +1,6 @@
 # Homebase Frontend Conventions
 
-> Used by `/fe-review`, `/spec-reviewer`, and `/spec-builder`. These are hard rules — not suggestions.
+> Used by `/fe-review`, `/spec-audit`, and `/spec-builder`. These are hard rules — not suggestions.
 
 ---
 

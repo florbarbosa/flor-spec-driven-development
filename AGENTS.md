@@ -10,7 +10,7 @@ Operating rules for every agent working in this repo. This repo holds **process 
 |------|---------|
 | `docs/HANDOFF.md` | Full end-to-end loop documentation. Read before doing anything. |
 | `templates/` | Seed templates for `project.config.md`, `project-spec.md`, and `issue/`. |
-| `conventions/` | Homebase FE and BE coding standards. Referenced by review skills and spec-reviewer. |
+| `conventions/` | Homebase FE and BE coding standards. Referenced by review skills and spec-audit. |
 | `specs/<project>/` | Authored specs per project. Committed. Each project has a `project.config.md`. |
 | `.claude/skills/` | All eight skills. Repo-scoped — available in any session with this repo as CWD. |
 | `.claude/workflows/spec-review-loop.js` | The adversarial review/revise loop (dynamic workflow). |
@@ -28,14 +28,14 @@ Operating rules for every agent working in this repo. This repo holds **process 
 ## The loop
 
 ```
-/setup  →  Recon  →  /spec-author  →  /spec-reviewer  →  /spec-builder  →  PR  →  Merge
+/setup  →  Recon  →  /spec-author  →  /spec-audit  →  /spec-builder  →  PR  →  Merge
 ```
 
 | Step | Skill | Who drives |
 |------|-------|-----------|
 | 0. Onboarding | `/setup` | Run once per project — collects all resources, writes `project.config.md` |
 | 1. Spec authoring | `/spec-author` | Reads Linear milestones, asks which to generate, grounds specs in real target-repo code |
-| 2. Spec review | `/spec-reviewer` | Adversarial loop — every anchor verified against real code |
+| 2. Spec review | `/spec-audit` | Adversarial loop — every anchor verified against real code |
 | 3. Build | `/spec-builder` | One issue, one PR. Verify → code review → commit → push → draft PR |
 | 4. PR review | `/review-pr --auto-comment` | Auto-posts findings inline + summary to the draft PR |
 | 5. Ship | (team) | Engineer addresses findings, marks ready for review, team merges |
@@ -48,7 +48,7 @@ Operating rules for every agent working in this repo. This repo holds **process 
 |-------|-----------|-------------|
 | `setup` | `/setup` | Interactive onboarding wizard. Collects Linear project, Figma, recordings, Slack, target repo. |
 | `spec-author` | `/spec-author` | Reads Linear project milestones. Asks which issues to spec. Authors `requirements.md` + `design.md` + `tasks.md`. |
-| `spec-reviewer` | `/spec-reviewer [slug]` | Principal-engineer reviewer in a loop. Verifies every claim. Blocks `>10 files`. Approves or returns blocking findings. |
+| `spec-audit` | `/spec-audit [slug]` | Principal-engineer reviewer in a loop. Verifies every claim. Blocks `>10 files`. Approves or returns blocking findings. |
 | `spec-builder` | `/spec-builder <slug>` | Builds one approved issue. Verify → `/be-review` + `/fe-review` → checkpoint → commit via `hops linear` → checkpoint → push + draft PR → `/review-pr --auto-comment`. |
 | `be-review` | `/be-review` | Ruby/Rails code quality, security, DB safety, Packwerk compliance, data modelling. |
 | `fe-review` | `/fe-review` | TypeScript/React quality, Designbase compliance, i18n, UX tracking, accessibility. |
@@ -68,7 +68,7 @@ Operating rules for every agent working in this repo. This repo holds **process 
 
 **Issue size**
 - 1 issue = 1 PR, always — no milestone-sized PRs, no "while I was in there" additions
-- If a spec's `design.md` file plan lists >10 files → `spec-reviewer` must block it until split
+- If a spec's `design.md` file plan lists >10 files → `spec-audit` must block it until split
 
 **Conventions**
 - Homebase conventions always apply regardless of project — Designbase, Packwerk, `hops linear`, `toI18n()`
@@ -92,4 +92,4 @@ Operating rules for every agent working in this repo. This repo holds **process 
 - `design.md` — component map (Tier: MCP/experimental/custom), file plan, state/data, routing
 - `tasks.md` — ordered build steps, test coverage targets, self-review checklist, definition of done
 
-A spec is **approved** when `spec-reviewer` adds `approved: true` to the frontmatter of all three files.
+A spec is **approved** when `spec-audit` adds `approved: true` to the frontmatter of all three files.

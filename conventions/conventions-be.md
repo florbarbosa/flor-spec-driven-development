@@ -1,6 +1,6 @@
 # Homebase Backend Conventions
 
-> Used by `/be-review`, `/spec-reviewer`, and `/spec-builder`. These are hard rules — not suggestions.
+> Used by `/be-review`, `/spec-audit`, and `/spec-builder`. These are hard rules — not suggestions.
 
 ---
 
