@@ -16,7 +16,7 @@ All components below are verified to exist in the target repo.
 | `Button` | `fe-design-base/molecules/Button` | Footer Cancel (`variant="secondary"`) and primary CTA (`variant="primary"`, `disabled`). Props: `variant`, `disabled`, `onClick`, `children`. Verified at `client/lib/fe-design-base/molecules/Button/Button.tsx:22-56`. |
 | `AppBackLink` | `features/navigation/BackLink` (default export) | Back-link in page header. Props: `fallbackLinkTo="/team"`, `dataTestId`. Verified at `client/src/features/navigation/BackLink/AppBackLink.tsx`. Wraps `fe-design-base/organisms/BackLink` (verified at `client/lib/fe-design-base/organisms/BackLink/BackLink.tsx`). |
 | `useHistory` | `react-router-dom` | Navigation in entry points (`history.push('/team/add')`). Used throughout the codebase (e.g. `client/src/features/timesheets/TimesheetsPage/TimesheetsTabNav/TimesheetsTabNav.jsx`). |
-| `rolloutActive` | `util/homebaseRollout` | Feature flag check. Verified at `client/src/util/homebaseRollout.js:9`. |
+| `getRolloutEnabled` | `selectors/session` | Feature flag check via Redux state. Verified at `client/src/selectors/session.js:387`. Used via `connect`/`mapStateToProps` as `addTeamChildPageEnabled: getRolloutEnabled(state, 'add_team_child_page')`. |
 | `toI18n` | `util/i18n` | All user-visible strings. Used in all five entry point files. |
 
 ---
@@ -30,6 +30,7 @@ Total: 10 files. Creation of `es/new_team_page.json` and registration of the Spa
 | # | Action | Path | Purpose |
 |---|--------|------|---------|
 | 1 | **Create** | `client/src/features/team/AddTeamPage/AddTeamPage.tsx` | New full-page component: renders header (title + AppBackLink), content placeholder Box, and sticky footer (Cancel + CTA). |
+| 1a | **Create** | `client/src/features/team/AddTeamPage/AddTeamPage.test.tsx` | Unit tests for AddTeamPage — added to satisfy test completeness gate (new TSX component requires test file). |
 | 2 | **Create** | `client/src/features/team/AddTeamPage/index.ts` | Barrel export for lazy-loading in Routes.jsx. |
 | 3 | **Edit** | `client/src/initializers/Routes.jsx` | Add lazy import for `AddTeamPage` and register `<Route exact path="/team/add" component={LazyAddTeamPage} />` inside `<SessionGate>` `<Switch>`, before the existing `/team` route entry. |
 | 4 | **Edit** | `client/src/features/teamView/TeamView/TeamHeader/ActionButtons/AddTeamMemberButton/AddTeamMemberButton.jsx` | Read `rolloutActive('add_team_child_page')` in `handleAddNew`; if true, call `history.push('/team/add')` instead of `onShowAddEmployeeModal`. Add `useHistory` hook. |
@@ -39,6 +40,7 @@ Total: 10 files. Creation of `es/new_team_page.json` and registration of the Spa
 | 8 | **Edit** | `client/src/features/timesheets/TimesheetsPage/PayPeriodReviewView/TimesheetsTable/TableRows/AddEmployeeRow.jsx` | Same flag branch on non-embedded path inside `handleClick`. |
 | 9 | **Create** | `client/src/locales/en/new_team_page.json` | English i18n strings for the new page (`title`, `cancel`, `submit`). |
 | 10 | **Edit** | `client/src/locales/en/index.js` | Register `new_team_page` namespace so `toI18n('new_team_page.*')` resolves to actual strings (not empty). Follow the pattern of adjacent namespace registrations in the same file. |
+| 11 | **Edit** | `app/services/feature_flags/fetch.rb` | Register `add_team_child_page: %i[redux_rollout]` in `ALLOW_LIST` so the flag is served to Redux state via `redux_rollouts(company)`. _Deviation from original spec: backbone is deprecated; correct mechanism is `:redux_rollout` + `getRolloutEnabled(state, 'add_team_child_page')` via Redux `connect`/`mapStateToProps`._ |
 
 > **Deferred to issue 02-i18n-locale-registration:** edit `es/index.js`, create `es/new_team_page.json`.
 
@@ -79,24 +81,30 @@ The new page is a pure presentational shell. No selectors, no dispatch, no API c
 
 ## Feature Flag
 
-**Mechanism:** `rolloutActive` from `util/homebaseRollout.js` — reads `window.Homebase.rollouts.isActive(name)`.
+**Mechanism:** `getRolloutEnabled` from `selectors/session` — reads `state.getIn(['session', 'rollouts', key])` (verified at `client/src/selectors/session.js:387`). Populated by `redux_rollouts(company)` on the backend, which calls `find_rollouts_by(:redux_rollout, company: company)`.
 
-**Key name (placeholder):** `add_team_child_page` — confirm the exact Flipper key name with BE before implementation (Open Question #1 in requirements.md).
+**Key name:** `add_team_child_page` — registered as `add_team_child_page: %i[redux_rollout]` in `app/services/feature_flags/fetch.rb`.
 
 **Usage pattern in entry points:**
 
 ```jsx
-import { rolloutActive } from 'util/homebaseRollout';
+import { getRolloutEnabled } from 'selectors/session';
+
+// In mapStateToProps:
+addTeamChildPageEnabled: getRolloutEnabled(state, 'add_team_child_page'),
+
+// In component props:
+const MyButton = ({ addTeamChildPageEnabled, ... }) => { ... }
 
 // Inside handleAddNew / handleClick, after tracking, before enforcement:
-// NOTE: enforcement guards must still fire when present — the flag only
-// governs the final navigation vs. drawer dispatch branch.
-if (rolloutActive('add_team_child_page')) {
+if (addTeamChildPageEnabled) {
   return history.push('/team/add');
 }
 // existing path ↓
 return onShowAddEmployeeModal({ calledFrom });
 ```
+
+**Note:** `rolloutActive` from `util/homebaseRollout` was NOT used — backbone is deprecated in this codebase.
 
 **Enforcement guard ordering** — The enforcement dialog and PayAnywhere modal checks in `AddTeamMemberButton.jsx` (lines 49–58) and `AddEmployeesButton.jsx` (lines 52–61) execute before the `onShowAddEmployeeModal` call. The flag branch must be inserted **after** those early returns to avoid bypassing them:
 
@@ -198,7 +206,7 @@ No new UX events in this issue. Existing `trackUxEvent` / `useTrackUx` calls in 
 
 | # | Risk / Assumption | Mitigation |
 |---|------------------|------------|
-| 1 | **Assumption:** `rolloutActive` is the correct flag mechanism for this feature. No other flag mechanism (GraphQL feature flag, Redux `featureFlags`, Flipper selector) is used for frontend routing gates in this codebase. | Verify with BE before merging. If a GraphQL flag is preferred, the entry-point pattern changes to a `useSelector(buildGetShow('addTeamChildPage'))` approach — same gate logic, different read mechanism. |
+| 1 | **Resolved:** `getRolloutEnabled` via Redux `connect`/`mapStateToProps` is the correct mechanism. `rolloutActive` from `util/homebaseRollout` was NOT used — backbone is deprecated. Backend registers the key as `:redux_rollout` in `fetch.rb`. | Confirmed at build time. |
 | 2 | **Risk:** Route ordering in `Routes.jsx` — if `/team/add` is placed after `/team/:userId` (line 704), the catch-all would match `add` as a userId. | Mitigation: register `/team/add` as `exact` before the `/team/:userId` route in the `<Switch>`. |
 | 3 | **Assumption:** `history.push('/team/add')` is safe to call inside `connect()`-wrapped class-compat components. All five entry point files are functional components — `useHistory` is available without HOC upgrade. | Verified: all five files use function components (confirmed via Read above). |
 | 4 | **Risk:** `AddEmployee.jsx` in Schedule Builder uses `fe-components/Box` (not `fe-design-base`), indicating it may be an older component. No layout change is made to that file — only the navigation branch is added. | Confirmed: the edit is a single flag branch inside `handleClick` — no import or JSX structure changes needed. |

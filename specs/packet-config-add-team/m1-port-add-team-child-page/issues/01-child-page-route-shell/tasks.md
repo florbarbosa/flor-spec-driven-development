@@ -257,19 +257,19 @@ Same pattern as Step 5:
 
 ## Self-Review Checklist
 
-- [ ] `/team/add` route is registered with `exact` and is ordered before `/team` and `/team/:userId` in the `<Switch>`
-- [ ] The lazy import for `LazyAddTeamPage` follows the existing naming convention in `Routes.jsx`
-- [ ] Each entry point preserves its existing `trackUxEvent` / `useTrackUx` call before the flag branch
-- [ ] The PayAnywhere and enforcement guards in `AddTeamMemberButton` and `AddEmployeesButton` still fire before the flag branch
-- [ ] The embedded path in `AddEmployee.jsx`, `AddEmployeeRow.jsx`, and `MenuDropDown.jsx` (`handleAddEmployee`) is unaffected
-- [ ] `useHistory` is imported from `react-router-dom` in each edited entry point (not from a custom hook)
-- [ ] `rolloutActive` is imported from `util/homebaseRollout` in each edited entry point
-- [ ] `history` is added to `useCallback` dependency arrays where it is used
-- [ ] All three new i18n keys (`new_team_page.title`, `new_team_page.cancel`, `new_team_page.submit`) are present in the locale file
-- [ ] `AddTeamPage` does NOT import from `features/team/slice.js` (no Redux changes in this issue)
-- [ ] The existing `AddTeamDrawer` in `GlobalComponents.tsx:167` is untouched
-- [ ] No TypeScript errors in `AddTeamPage.tsx` (run `tsc --noEmit` or the project's type-check command)
-- [ ] Bundle size impact: `AddTeamPage` is lazy-loaded; confirm no unintentional eager import
+- [x] `/team/add` route is registered with `exact` and is ordered before `/team` and `/team/:userId` in the `<Switch>`
+- [x] The lazy import for `LazyAddTeamPage` follows the existing naming convention in `Routes.jsx`
+- [x] Each entry point preserves its existing `trackUxEvent` / `useTrackUx` call before the flag branch
+- [x] The PayAnywhere and enforcement guards in `AddTeamMemberButton` and `AddEmployeesButton` still fire before the flag branch
+- [x] The embedded path in `AddEmployee.jsx`, `AddEmployeeRow.jsx`, and `MenuDropDown.jsx` (`handleAddEmployee`) is unaffected
+- [x] `useHistory` is imported from `react-router-dom` in each edited entry point (not from a custom hook)
+- [x] `getRolloutEnabled` is imported from `selectors/session` in each entry point; `addTeamChildPageEnabled` is wired via `mapStateToProps` — `rolloutActive` (backbone) is NOT used
+- [x] `addTeamChildPageEnabled` and `history` are added to `useCallback` dependency arrays where used
+- [x] All three new i18n keys (`new_team_page.title`, `new_team_page.cancel`, `new_team_page.submit`) are present in the locale file
+- [x] `AddTeamPage` does NOT import from `features/team/slice.js` (no Redux changes in this issue)
+- [x] The existing `AddTeamDrawer` in `GlobalComponents.tsx:167` is untouched
+- [x] No TypeScript errors in `AddTeamPage.tsx` (run `tsc --noEmit` or the project's type-check command) — `bun run ts` passes
+- [x] Bundle size impact: `AddTeamPage` is lazy-loaded; confirm no unintentional eager import
 
 ---
 
