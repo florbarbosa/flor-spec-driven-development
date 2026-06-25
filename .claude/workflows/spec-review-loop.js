@@ -7,19 +7,15 @@ export const meta = {
   ],
 }
 
-// Args:
-//   args.projectSlug  (string, required) — e.g. "packet-config-m1"
-//   args.repo         (string, required) — absolute path to target repo
-//   args.issues       (string[], optional) — specific issue slugs to review; omit to review all unapproved
-//   args.maxRounds    (number, optional) — max review/revise rounds per issue (default: 3)
-//   args.specDir      (string, optional) — override spec directory path
+// NOTE: args are resolved at the call site. process.env is not available in the workflow sandbox.
+// SPEC_DIR and REPO are resolved from args with absolute-path fallbacks for direct scriptPath invocation.
+const _projectSlug = (args && args.projectSlug) || 'packet-config-add-team'
+const _repo = (args && args.repo) || '/Users/fbarbosa/Documents/Homebase1'
+const _specDir = (args && args.specDir) || `/Users/fbarbosa/Documents/flor-spec-driven-development/specs/${_projectSlug}`
 
-const SPEC_DIR = args.specDir || `${process.env.HOME}/Documents/flor-spec-driven-development/specs/${args.projectSlug}`
-const REPO = args.repo
-const MAX_ROUNDS = args.maxRounds || 3
-
-if (!args.projectSlug) throw new Error('args.projectSlug is required')
-if (!args.repo) throw new Error('args.repo is required')
+const SPEC_DIR = _specDir
+const REPO = _repo
+const MAX_ROUNDS = (args && args.maxRounds) || 3
 
 const VERDICT_SCHEMA = {
   type: 'object',
@@ -57,7 +53,7 @@ const VERDICT_SCHEMA = {
 // Discover which issues to review
 phase('Review')
 
-let issuesToReview = args.issues || []
+let issuesToReview = (args && args.issues) || []
 
 if (issuesToReview.length === 0) {
   log('No issues specified — scanning for unapproved specs...')
@@ -65,11 +61,11 @@ if (issuesToReview.length === 0) {
     `Scan the directory ${SPEC_DIR} for all issue specs that do NOT have "approved: true" in their frontmatter. ` +
     `Look for files matching the pattern */issues/*/requirements.md. ` +
     `For each requirements.md found, read the first 10 lines to check for "approved: true" in the YAML frontmatter. ` +
-    `Return a JSON array of issue slugs (the directory name containing the spec files) that are NOT yet approved. ` +
-    `Return only the slug names, e.g. ["01-child-page-route-shell", "02-contact-info-card"].`,
-    { label: 'discover-unapproved', schema: { type: 'array', items: { type: 'string' } } }
+    `Return an object with a "slugs" array of issue slugs (the directory name containing the spec files) that are NOT yet approved. ` +
+    `Return only the slug names, e.g. {"slugs": ["01-child-page-route-shell", "02-contact-info-card"]}.`,
+    { label: 'discover-unapproved', schema: { type: 'object', required: ['slugs'], properties: { slugs: { type: 'array', items: { type: 'string' } } } } }
   )
-  issuesToReview = discovered || []
+  issuesToReview = (discovered && discovered.slugs) ? discovered.slugs : []
 }
 
 if (issuesToReview.length === 0) {
@@ -88,10 +84,10 @@ const results = await pipeline(
     const pathResult = await agent(
       `Find the directory containing the spec files for issue slug "${slug}" under ${SPEC_DIR}. ` +
       `Look for a path matching */issues/${slug}/requirements.md. ` +
-      `Return the absolute directory path (without the filename), e.g. ${SPEC_DIR}/m1-name/issues/${slug}`,
-      { label: `find-path:${slug}`, schema: { type: 'string' } }
+      `Return a JSON object with a "path" field containing the absolute directory path (without the filename), e.g. {"path": "${SPEC_DIR}/m1-name/issues/${slug}"}`,
+      { label: `find-path:${slug}`, schema: { type: 'object', required: ['path'], properties: { path: { type: 'string' } } } }
     )
-    return { slug, specPath: pathResult }
+    return { slug, specPath: pathResult && pathResult.path ? pathResult.path : null }
   },
 
   // Stage 2: review/revise loop

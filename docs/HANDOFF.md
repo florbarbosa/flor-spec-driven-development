@@ -91,18 +91,30 @@ The skill:
    - `jest` for new tests + any existing suites that could regress
    - `eslint` / `stylelint` on changed files
    - For any submit or persist surface: **runs the app** and does a real unmocked submit
-4. **Code review:**
+   - **Test completeness gate:** every new source file (component, hook, controller, service) must have a corresponding test file — stops here if any are missing
+3.5. **Visual QA** (FE changes only):
+   - Reads "States to Cover" table from `requirements.md`
+   - Starts dev server if not running, navigates to the affected route
+   - Screenshots each state (loading, empty, populated, error, success, etc.) — manual prompt for states that need interaction
+   - Saves to `specs/<slug>/issues/<slug>/qa/screenshots/`
+   - Engineer compares against Figma; discrepancies are noted and carried forward
+4. **Self-review against spec** + **spec sync:**
+   - Checks all ACs covered, no scope creep, file count ≤ 10
+   - Updates spec files to reflect what was actually built: checks off `tasks.md` steps, corrects file paths in `design.md` file plan, updates component map if a different component was used
+   - Does NOT change ACs, non-goals, or user stories — only implementation details
+5. **Code review:**
    - `client/` files changed → runs `/fe-review`
    - `app/`, `packs/`, `config/`, `spec/` files changed → runs `/be-review`
    - Presents findings to engineer. Waits for approval. Does not auto-fix.
-5. **Commit checkpoint** — shows what was built, asks "Ready to commit?"
+6. **Commit checkpoint** — shows what was built, asks "Ready to commit?"
    - `git add <specific files>` (never `-A`)
    - `hops linear --edit=false` (creates commit from matching Linear issue)
    - `git commit --amend --no-edit --trailer "Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"`
-6. **Push checkpoint** — shows `git diff --stat origin/main..HEAD`, asks "Ready to push and open a draft PR?"
+7. **Push checkpoint** — shows `git diff --stat origin/main..HEAD`, asks "Ready to push and open a draft PR?"
    - `git push -u origin HEAD`
-   - `gh pr create --draft` with spec link, review findings summary, and test plan checklist
-7. **PR review** — immediately runs `/review-pr <PR_NUMBER> --auto-comment` which posts all findings inline + summary to the draft PR automatically
+   - `gh pr create --draft` with spec link, review findings summary, test plan checklist, and a Visual evidence table (FE only)
+   - If FE changes: uploads screenshots via GitHub asset API and posts them as a PR comment
+8. **PR review** — immediately runs `/review-pr <PR_NUMBER> --auto-comment` which posts all findings inline + summary to the draft PR automatically
 
 > **Rule:** 1 issue = 1 PR, always. Never stage with `git add -A`. Never push without engineer approval.
 
