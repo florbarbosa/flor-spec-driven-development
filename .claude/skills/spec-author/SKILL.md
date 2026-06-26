@@ -90,7 +90,16 @@ If **Create issues in Linear first**: before creating anything, display a confir
 
 Ask: "Confirm creating these N issues in Linear? (yes / no)"
 
-Only on explicit confirmation: call `mcp__linear__save_issue` for each proposed issue with `team`, `project`, `milestone`, `title`, and a brief `description`. Show the created issue IDs. Then proceed to Step 4 using those issues.
+Only on explicit confirmation: call `mcp__linear__save_issue` for each proposed issue following the **HRM issue template**:
+
+- **`title`** — concise, action-oriented (e.g. "Add child page route shell for team onboarding")
+- **`description`** — 2-3 sentence context: what this issue does and why it's needed at this stage of the project
+- **`acceptanceCriteria`** — bullet list of testable ACs, one per line
+- **`devNotes`** (in description body, under `## Dev Notes`) — implementation hints, relevant file paths, any known constraints
+- **`dependencies`** — if this issue depends on another Linear issue, include the full Linear issue URL (not just the title) in the description under `## Dependencies`
+- **Order** — propose issues in the order they should be worked on. Issues that touch shared files or lay foundations should come first, even if there are no hard code dependencies between them.
+
+Show the created issue IDs and their Linear URLs. Then proceed to Step 4 using those issues.
 
 If **Use suggested breakdown**: proceed to Step 4 using the proposed issue list directly (no Linear issues created).
 
@@ -168,11 +177,15 @@ After all issues are authored:
   Issues authored: N
   ⚠️  Issues flagged for splitting: N (see above)
   Milestones covered: <names>
-
-  Next step: run /spec-audit to adversarially
-  review each spec before building.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+Ask (AskUserQuestion):
+- **Run /spec-audit now** *(Recommended)* — adversarially review all authored specs before building. Invoke `/spec-audit` immediately.
+- **Review specs myself first** — stop here; run `/spec-audit` when ready.
+- **Author specs for another milestone** — loop back to Step 1 for a different milestone.
+
+If **Run /spec-audit now**: invoke `/spec-audit` immediately with no argument (reviews all unapproved specs).
 
 ---
 

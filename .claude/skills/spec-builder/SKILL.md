@@ -38,7 +38,16 @@ Read all three spec files for the issue: `requirements.md`, `design.md`, `tasks.
     Proceed anyway? (yes / run /spec-audit first)
 ```
 
-**Confirm branch:** Ask the engineer to confirm they are on a feature branch matching `{initials}/{ticket-id}-{slug}`. Run `git branch --show-current` to show the current branch.
+**Branch setup:** Run `git -C <target_repo> branch --show-current` and `git -C <target_repo> status --short`.
+
+| State | Action |
+|-------|--------|
+| On `main`, clean | Ask: "Create feature branch `{initials}/{ticket-id}-{slug}`?" If yes: `git -C <target_repo> pull origin main && git -C <target_repo> checkout -b {branch}` |
+| On correct feature branch | Continue |
+| On wrong branch, clean | Ask: "Switch to `{initials}/{ticket-id}-{slug}` or create it?" |
+| Any branch, uncommitted changes | Stop: "There are uncommitted changes in `<target_repo>`. Commit, stash, or discard them before building." |
+
+Display current branch after setup.
 
 Display:
 ```
@@ -354,3 +363,8 @@ Report:
 - Screenshot comment URL (FE changes only; omit otherwise)
 
 Be honest about anything not passing or not yet addressed.
+
+Ask (AskUserQuestion):
+- **Build the next issue** *(Recommended)* — run `/spec-builder <next-slug>` for the next approved issue in sequence.
+- **Pause here** — done for now; the draft PR is open and reviewed.
+- **Run /spec-audit on remaining issues** — shown only when unapproved specs still exist.

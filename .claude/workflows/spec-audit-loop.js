@@ -130,7 +130,7 @@ const results = await pipeline(
         `- edge-cases: fewer than 3 edge cases in requirements.md\n` +
         `- test-coverage: test targets missing happy path or a named error state\n\n` +
         `Return a structured verdict. approved=true only if there are zero blocking findings.`,
-        { label: `audit:${slug}:r${round}`, phase: 'Audit', schema: VERDICT_SCHEMA, effort: 'high' }
+        { label: `audit:${slug}:r${round}`, phase: 'Audit', schema: VERDICT_SCHEMA, model: 'opus', effort: 'high' }
       )
 
       lastVerdict = verdict

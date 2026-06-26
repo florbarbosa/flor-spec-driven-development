@@ -272,6 +272,26 @@ Remaining: Z findings
 Note: PRs in this flow stay as drafts — never mark ready for review through this skill.
 ```
 
+**If changes were made and a PR exists (`REVIEW_MODE=pr`):** after the engineer commits the fixes, post a summary comment to the PR:
+
+```bash
+gh pr comment $PR_NUMBER --body "$(cat <<'EOF'
+### FE review fixes applied
+
+Applied the following changes based on `/fe-review` findings:
+
+<bulleted list of what was fixed — one line per finding, e.g.:>
+- `AddTeamPage.tsx` — added `role="banner"` and `role="contentinfo"` on header/footer (a11y landmark fix)
+- `AddTeamPage.test.tsx` — replaced `getAllByText` with `getByRole('heading')` for stronger assertion
+- `AddTeamMemberButton.jsx` — added `uxElement` prop for UX auto-tracking
+
+Skipped: <N findings — list reason if notable, e.g. "info-level only" or "pre-existing pattern">
+EOF
+)"
+```
+
+Keep each bullet to one line. Only include findings that were actually committed — not skipped ones.
+
 ---
 
 ## Error Handling

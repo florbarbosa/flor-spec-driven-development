@@ -93,7 +93,32 @@ For each selected type, ask for the URL/path and a short label. Store as `REFERE
 
 For Slack threads: if the user provides a Slack URL, offer to fetch the thread content via `mcp__slack__slack_read_thread` and summarize it. Ask: "Should I fetch and summarize this thread now? (saves time during spec authoring)"
 
-### Step 5: Review & confirm
+### Step 5: Rollout & experiment strategy
+
+> **TODO:** This section needs richer context on how rollouts and experiments work at Homebase — including the difference between `redux_rollout`, backbone rollouts (deprecated), and experiment flags; how to create a new rollout entry in `fetch.rb`; how experiments are configured; and what BE work is required before any FE flag can be used. Add this documentation before relying on this step for a new project. See `docs/refinements/2026-06-25.md` for background.
+
+Ask (AskUserQuestion): "Does this project use feature flags, rollout flags, or experiments?"
+- **Yes — uses rollout/experiment flags** — continue to collect details
+- **No — ships without flags** — skip this step; store `rollout_strategy: none`
+- **Not sure yet** — skip for now; store `rollout_strategy: tbd` and note it should be revisited before spec authoring
+
+If **Yes**:
+
+Ask: "What rollout type does this project use?"
+- **`redux_rollout`** *(Recommended for Homebase)* — flag stored in Redux session state, accessed via `getRolloutEnabled(state, 'key')` from `selectors/session.js`. Registered in `app/services/feature_flags/fetch.rb` ALLOW_LIST.
+- **`experiment`** — A/B experiment; requires experiment setup in the BE experiment framework.
+- **Other** — ask for the type name and where it's configured.
+
+Ask: "What is the rollout key naming convention for this project? (e.g. `add_team_child_page`, `packet_config_v2`)"
+
+Ask: "Does the rollout flag/experiment already exist in the target repo's BE config?"
+- **Yes — already configured** — note the file path (`app/services/feature_flags/fetch.rb` or equivalent)
+- **No — needs to be created** — flag this: a BE issue must be created and completed before any FE issue that depends on the flag. This BE issue should be listed as a dependency when creating FE issues in Linear.
+- **Not sure** — store `rollout_exists: unknown`; `/spec-author` will surface this as a risk on each issue that uses the flag.
+
+Store as `ROLLOUT_STRATEGY` with fields: `type`, `key_convention`, `exists`, `config_path`.
+
+### Step 6: Review & confirm
 
 Display a full summary:
 ```
@@ -106,6 +131,7 @@ Display a full summary:
   Tech stack:    <frontend> + <backend>
   Figma:         <N files> [list labels]
   References:    <N items> [list type + label]
+  Rollout:       <type> / key convention: <key> / exists: <yes|no|tbd>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -113,13 +139,13 @@ Ask: "Does everything look correct? (yes to write / no to go back and correct)"
 
 If no: ask which section to fix. Loop back to that step.
 
-### Step 6: Write project files
+### Step 7: Write project files
 
 Fetch milestone list via `mcp__linear__list_milestones`. Build the milestones table.
 
 Create directory: `specs/<PROJECT_SLUG>/`
 
-**Write `specs/<PROJECT_SLUG>/project.config.md`** from the template at `templates/project.config.md`, filling in all collected values.
+**Write `specs/<PROJECT_SLUG>/project.config.md`** from the template at `templates/project.config.md`, filling in all collected values including `ROLLOUT_STRATEGY` under a `## Rollout & Experiments` section.
 
 **Write `specs/<PROJECT_SLUG>/project-spec.md`** from `templates/project-spec.md`, pre-filling:
 - Project name and Linear URL in the header
@@ -130,7 +156,7 @@ Create directory: `specs/<PROJECT_SLUG>/`
 Create placeholder recon directories for each milestone:
 `specs/<PROJECT_SLUG>/<milestone-slug>/00-recon/.gitkeep`
 
-### Step 7: Fetch and summarize milestones
+### Step 8: Fetch and summarize milestones
 
 Fetch all milestones and their issue counts via `mcp__linear__list_milestones` + `mcp__linear__list_issues`. Display:
 
@@ -144,7 +170,7 @@ Fetch all milestones and their issue counts via `mcp__linear__list_milestones` +
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-### Step 8: Transition to spec authoring
+### Step 9: Transition to spec authoring
 
 Display:
 ```

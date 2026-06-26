@@ -34,7 +34,7 @@ For each spec, run up to `MAX_ROUNDS = 2` audit → revise iterations. After eac
 
 ---
 
-#### Reviewer agent (subagent_type: general-purpose, effort: high)
+#### Reviewer agent (subagent_type: general-purpose, model: opus, effort: high)
 
 The reviewer acts as a skeptical principal engineer. It receives:
 - Full content of `requirements.md`, `design.md`, `tasks.md`
@@ -86,7 +86,7 @@ Returns JSON:
 
 ---
 
-#### Reviser agent (if not approved)
+#### Reviser agent (if not approved, subagent_type: general-purpose, model: sonnet)
 
 The reviser receives:
 - All three spec files (full content)
@@ -136,6 +136,11 @@ List each remaining finding with its category, location, and fix. The engineer m
 ```
 
 List non-blocking notes after the summary (grouped by issue).
+
+Ask (AskUserQuestion):
+- **Build the first approved issue** *(Recommended)* — invoke `/spec-builder <first-approved-slug>` immediately.
+- **Review approved specs myself first** — stop here; run `/spec-builder <slug>` when ready.
+- **Not yet — address remaining blocking findings first** — shown only when issues still need work.
 
 ---
 
