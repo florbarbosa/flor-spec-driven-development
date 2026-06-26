@@ -19,6 +19,7 @@ Implements one approved issue spec in the target repo. The spec is the contract 
 - **Build to spec.** If you discover a gap or missing behavior, report it — never implement it.
 - **Spec must be approved** (`approved: true` in frontmatter) before building. Warn and ask if not.
 - **For submit surfaces:** tsc + jest is not sufficient — run the app and do a real unmocked submit.
+- **PRs are ALWAYS kept as drafts.** Never mark a PR ready for review — not after the build, not after `/review-pr`, not ever. That decision is the engineer's, done manually on GitHub.
 
 ---
 

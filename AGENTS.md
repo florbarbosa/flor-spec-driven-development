@@ -13,7 +13,7 @@ Operating rules for every agent working in this repo. This repo holds **process 
 | `conventions/` | Homebase FE and BE coding standards. Referenced by review skills and spec-audit. |
 | `specs/<project>/` | Authored specs per project. Committed. Each project has a `project.config.md`. |
 | `.claude/skills/` | All eight skills. Repo-scoped — available in any session with this repo as CWD. |
-| `.claude/workflows/spec-review-loop.js` | The adversarial review/revise loop (dynamic workflow). |
+| `.claude/workflows/spec-audit-loop.js` | The adversarial audit/revise loop (dynamic workflow). |
 
 ---
 
@@ -38,7 +38,7 @@ Operating rules for every agent working in this repo. This repo holds **process 
 | 2. Spec review | `/spec-audit` | Adversarial loop — every anchor verified against real code |
 | 3. Build | `/spec-builder` | One issue, one PR. Verify → code review → commit → push → draft PR |
 | 4. PR review | `/review-pr --auto-comment` | Auto-posts findings inline + summary to the draft PR |
-| 5. Ship | (team) | Engineer addresses findings, marks ready for review, team merges |
+| 5. Ship | (team) | Engineer addresses findings on the draft PR — team reviews and merges. PRs stay in draft until the team explicitly promotes them. |
 
 ---
 

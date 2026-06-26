@@ -30,7 +30,7 @@ Reviewing N spec(s):
 
 ### Step 1: Review loop (per issue, up to 3 concurrent)
 
-For each spec, run up to `MAX_ROUNDS = 3` review → revise iterations:
+For each spec, run up to `MAX_ROUNDS = 2` audit → revise iterations. After each rejected round, log a one-line summary: what blocked it (categories) and the reviewer's overall summary sentence — so the engineer can see at a glance why each round failed without reading the full finding list.
 
 ---
 
@@ -125,7 +125,7 @@ List each remaining finding with its category, location, and fix. The engineer m
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Spec Review Complete
+  Spec Audit Complete
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ✓ Approved:       N issue(s)
   ✗ Needs work:     N issue(s)

@@ -1,8 +1,8 @@
 export const meta = {
-  name: 'spec-review-loop',
-  description: 'Adversarial review/revise loop for issue specs. Runs a principal-engineer reviewer and a reviser per issue until approved or max rounds reached.',
+  name: 'spec-audit-loop',
+  description: 'Adversarial audit/revise loop for issue specs. Runs a principal-engineer reviewer and a reviser per issue until approved or max rounds reached.',
   phases: [
-    { title: 'Review', detail: 'Principal-engineer reviewer verifies every claim against the real target repo' },
+    { title: 'Audit', detail: 'Principal-engineer reviewer verifies every claim against the real target repo' },
     { title: 'Revise', detail: 'Reviser applies fixes to spec files based on blocking findings' },
   ],
 }
@@ -15,7 +15,7 @@ const _specDir = (args && args.specDir) || `/Users/fbarbosa/Documents/flor-spec-
 
 const SPEC_DIR = _specDir
 const REPO = _repo
-const MAX_ROUNDS = (args && args.maxRounds) || 3
+const MAX_ROUNDS = (args && args.maxRounds) || 2
 
 const VERDICT_SCHEMA = {
   type: 'object',
@@ -50,8 +50,8 @@ const VERDICT_SCHEMA = {
   },
 }
 
-// Discover which issues to review
-phase('Review')
+// Discover which issues to audit
+phase('Audit')
 
 let issuesToReview = (args && args.issues) || []
 
@@ -73,9 +73,9 @@ if (issuesToReview.length === 0) {
   return { approved: [], notApproved: [], all: [] }
 }
 
-log(`Reviewing ${issuesToReview.length} spec(s): ${issuesToReview.join(', ')}`)
+log(`Auditing ${issuesToReview.length} spec(s): ${issuesToReview.join(', ')}`)
 
-// Run review/revise loop per issue in parallel (up to 3 concurrent via pipeline)
+// Run audit/revise loop per issue in parallel (up to 3 concurrent via pipeline)
 const results = await pipeline(
   issuesToReview,
 
@@ -90,7 +90,7 @@ const results = await pipeline(
     return { slug, specPath: pathResult && pathResult.path ? pathResult.path : null }
   },
 
-  // Stage 2: review/revise loop
+  // Stage 2: audit/revise loop
   async (item, slug) => {
     const { specPath } = item
     if (!specPath) {
@@ -103,7 +103,7 @@ const results = await pipeline(
 
     while (round < MAX_ROUNDS) {
       round++
-      log(`Round ${round}/${MAX_ROUNDS}: reviewing ${slug}`)
+      log(`Round ${round}/${MAX_ROUNDS}: auditing ${slug}`)
 
       // Reviewer
       const verdict = await agent(
@@ -130,13 +130,17 @@ const results = await pipeline(
         `- edge-cases: fewer than 3 edge cases in requirements.md\n` +
         `- test-coverage: test targets missing happy path or a named error state\n\n` +
         `Return a structured verdict. approved=true only if there are zero blocking findings.`,
-        { label: `review:${slug}:r${round}`, phase: 'Review', schema: VERDICT_SCHEMA, effort: 'high' }
+        { label: `audit:${slug}:r${round}`, phase: 'Audit', schema: VERDICT_SCHEMA, effort: 'high' }
       )
 
       lastVerdict = verdict
 
       if (!verdict || verdict.approved) break
       if (round >= MAX_ROUNDS) break
+
+      // Log round summary before revising
+      const categories = verdict.blockingFindings.map(f => f.category)
+      log(`Round ${round} blocked: ${verdict.summary} | Categories: ${categories.join(', ')}`)
 
       // Reviser
       log(`Round ${round}/${MAX_ROUNDS}: revising ${slug} (${verdict.blockingFindings.length} blocking finding(s))`)
@@ -156,7 +160,7 @@ const results = await pipeline(
         { label: `revise:${slug}:r${round}`, phase: 'Revise' }
       )
 
-      phase('Review')
+      phase('Audit')
     }
 
     const approved = lastVerdict && lastVerdict.approved
@@ -172,11 +176,13 @@ const results = await pipeline(
         `  ${specPath}/tasks.md\n\n` +
         `For each file: read it, find the opening "---" frontmatter block, add "approved: true" as a new line before the closing "---". ` +
         `If "approved: false" already exists, replace it with "approved: true".`,
-        { label: `approve:${slug}`, phase: 'Review' }
+        { label: `approve:${slug}`, phase: 'Audit' }
       )
       log(`✓ ${slug} approved after ${round} round(s)`)
     } else {
-      log(`✗ ${slug} not approved — ${lastVerdict ? lastVerdict.blockingFindings.length : '?'} blocking finding(s) remain`)
+      const remaining = lastVerdict ? lastVerdict.blockingFindings : []
+      const remainingCategories = remaining.map(f => f.category).join(', ')
+      log(`✗ ${slug} not approved after ${round} round(s) — ${remaining.length} blocking finding(s) remain: ${remainingCategories}`)
     }
 
     return {
@@ -185,7 +191,7 @@ const results = await pipeline(
       rounds: round,
       blockingFindings: approved ? [] : (lastVerdict ? lastVerdict.blockingFindings : []),
       nonBlockingNotes,
-      summary: lastVerdict ? lastVerdict.summary : 'Review failed',
+      summary: lastVerdict ? lastVerdict.summary : 'Audit failed',
     }
   }
 )
@@ -194,7 +200,7 @@ const filtered = results.filter(Boolean)
 const approved = filtered.filter(r => r.approved)
 const notApproved = filtered.filter(r => !r.approved)
 
-log(`\nSpec review complete: ${approved.length} approved, ${notApproved.length} need work`)
+log(`\nSpec audit complete: ${approved.length} approved, ${notApproved.length} need work`)
 
 return {
   approved: approved.map(r => r.slug),

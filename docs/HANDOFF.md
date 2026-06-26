@@ -131,7 +131,8 @@ The engineer:
 1. Opens the draft PR on GitHub
 2. Reads the inline comments and summary
 3. Addresses the findings they agree with
-4. Marks the PR as "Ready for review" when done
+
+> **Rule:** PRs opened through this flow are **always kept as drafts**. Never mark a PR ready for review through any skill — that decision belongs to the engineer, done manually on GitHub when they are satisfied with the state of the PR.
 
 ---
 
@@ -195,7 +196,7 @@ A well-sized issue:
 - **Commit message:** via `hops linear --edit=false` — fetches the matching Linear issue and uses it as the commit message
 - **Co-authoring:** always amend with `--trailer "Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"`
 - **PR title:** `<issue-slug>: <Linear issue title>`
-- **PR state:** always open as draft — let `/review-pr --auto-comment` post findings before marking ready
+- **PR state:** always open as draft — `/review-pr --auto-comment` posts findings, but the PR stays draft until the engineer promotes it manually on GitHub
 - **PR size:** if your PR touches >10 files, something went wrong at the spec stage — stop and investigate
 
 ---

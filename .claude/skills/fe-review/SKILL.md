@@ -268,8 +268,8 @@ Skipped:   Y findings
 Remaining: Z findings
 
 [If changes were made]: Don't forget to commit.
-[If no remaining critical/warning in PR mode]: Ready for review.
 [If BACKEND_FILES > 0]: Run /be-review to cover backend changes.
+Note: PRs in this flow stay as drafts — never mark ready for review through this skill.
 ```
 
 ---

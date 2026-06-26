@@ -53,7 +53,7 @@ Projects are added one by one. Each project gets a directory under `specs/` with
   │ /spec-builder │ ──▶ │  Draft PR  │ ──▶ │    Team review → merge       │
   │               │     │            │     │                              │
   │ Build + verify│     │ /review-pr │     │ Inline comments already      │
-  │ + be/fe-review│     │ --auto-    │     │ posted. Address, mark ready. │
+  │ + be/fe-review│     │ --auto-    │     │ posted. Address findings.    │
   │ + commit      │     │ comment    │     │                              │
   └───────────────┘     └────────────┘     └──────────────────────────────┘
 ```
@@ -144,7 +144,7 @@ flor-spec-driven-development/
 └── .claude/
     ├── skills/                  ← 8 skills, auto-loaded when CWD is this repo
     └── workflows/
-        └── spec-review-loop.js  ← adversarial review/revise dynamic loop
+        └── spec-audit-loop.js   ← adversarial audit/revise dynamic loop
 ```
 
 ---
